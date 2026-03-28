@@ -1,0 +1,16 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: agent-config-platform
+
+# Spring AI Alibaba model provider config (fill with your own key and endpoint)
+spring.ai.alibaba:
+  enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
