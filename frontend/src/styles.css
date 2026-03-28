@@ -1,0 +1,36 @@
+body {
+  margin: 0;
+  font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: linear-gradient(180deg, #f5f3ff 0%, #eef2ff 100%);
+}
+
+.page-layout {
+  min-height: 100vh;
+}
+
+.app-header {
+  background: linear-gradient(90deg, #4c1d95 0%, #6d28d9 100%);
+  display: flex;
+  align-items: center;
+}
+
+.app-content {
+  padding: 24px;
+  max-width: 1280px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.stat-row {
+  margin-bottom: 16px;
+}
+
+.prompt-preview {
+  background: #0f172a;
+  color: #e2e8f0;
+  border-radius: 8px;
+  padding: 12px;
+  white-space: pre-wrap;
+  line-height: 1.6;
+  font-size: 13px;
+}
