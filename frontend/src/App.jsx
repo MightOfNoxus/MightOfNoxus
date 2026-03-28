@@ -9,13 +9,25 @@ import {
   List,
   message,
   Row,
+  Select,
   Space,
   Statistic,
+  Switch,
   Tabs,
   Tag,
-  Typography
+  Typography,
+  InputNumber
 } from 'antd'
-import { createAgent, createSkill, createTool, fetchAgents, fetchSkills, fetchSummary, fetchTools } from './services/api'
+import {
+  createAgent,
+  createReactAgent,
+  createSkill,
+  createTool,
+  fetchAgents,
+  fetchSkills,
+  fetchSummary,
+  fetchTools
+} from './services/api'
 
 const { Header, Content } = Layout
 const { TextArea } = Input
@@ -24,11 +36,14 @@ function App() {
   const [agentForm] = Form.useForm()
   const [toolForm] = Form.useForm()
   const [skillForm] = Form.useForm()
+  const [reactAgentForm] = Form.useForm()
 
   const [summary, setSummary] = useState({ agents: 0, tools: 0, skills: 0, readyToBuild: false })
   const [agents, setAgents] = useState([])
   const [tools, setTools] = useState([])
   const [skills, setSkills] = useState([])
+  const [reactAgentResult, setReactAgentResult] = useState(null)
+  const [creatingReactAgent, setCreatingReactAgent] = useState(false)
 
   const loadData = async () => {
     const [summaryRes, agentsRes, toolsRes, skillsRes] = await Promise.all([
@@ -58,6 +73,19 @@ function App() {
     }
   }
 
+  const handleCreateReactAgent = async (values) => {
+    setCreatingReactAgent(true)
+    try {
+      const res = await createReactAgent(values)
+      setReactAgentResult(res)
+      message.success('ReactAgent 创建成功')
+    } catch (error) {
+      message.error(error?.response?.data?.message || 'ReactAgent 创建失败，请检查模型配置')
+    } finally {
+      setCreatingReactAgent(false)
+    }
+  }
+
   return (
     <Layout className="page-layout">
       <Header className="app-header">
@@ -78,6 +106,72 @@ function App() {
               {summary.readyToBuild ? '可快速搭建智能体' : '请至少创建一个Agent和技能/工具'}
             </Tag>
           </Space>
+        </Card>
+
+        <Card style={{ marginBottom: 16 }} title="一键创建 ReactAgent（基于配置）">
+          <Form form={reactAgentForm} layout="vertical" onFinish={handleCreateReactAgent}>
+            <Form.Item name="agentId" label="选择Agent" rules={[{ required: true, message: '请选择Agent' }]}>
+              <Select
+                style={{ width: 260 }}
+                placeholder="选择已配置 Agent"
+                options={agents.map(agent => ({ label: `${agent.name} (${agent.modelProvider}/${agent.modelName})`, value: agent.id }))}
+              />
+            </Form.Item>
+            <Form.Item name="userMessage" label="试运行消息">
+              <Input placeholder="可选：输入消息后会直接调用一次" style={{ width: 480 }} />
+            </Form.Item>
+
+            <Row gutter={16}>
+              <Col span={8}>
+                <Form.Item name={['runtimeParams', 'requestId']} label="requestId">
+                  <Input placeholder="REQ-20260328-001" />
+                </Form.Item>
+              </Col>
+              <Col span={8}>
+                <Form.Item name={['runtimeParams', 'tenant']} label="tenant">
+                  <Input placeholder="default-tenant" />
+                </Form.Item>
+              </Col>
+              <Col span={8}>
+                <Form.Item name={['hookOptions', 'maxModelCalls']} label="最大模型调用次数">
+                  <InputNumber min={1} max={20} style={{ width: '100%' }} />
+                </Form.Item>
+              </Col>
+            </Row>
+
+            <Row gutter={16}>
+              <Col span={8}>
+                <Form.Item name={['hookOptions', 'enableToolRetry']} label="启用 ToolRetry" valuePropName="checked">
+                  <Switch />
+                </Form.Item>
+              </Col>
+              <Col span={8}>
+                <Form.Item name={['hookOptions', 'toolRetryTimes']} label="ToolRetry 次数">
+                  <InputNumber min={1} max={5} style={{ width: '100%' }} />
+                </Form.Item>
+              </Col>
+              <Col span={8}>
+                <Form.Item name={['hookOptions', 'enableContextEditing']} label="启用上下文压缩" valuePropName="checked">
+                  <Switch />
+                </Form.Item>
+              </Col>
+            </Row>
+
+            <Form.Item>
+              <Button type="primary" htmlType="submit" loading={creatingReactAgent}>创建 ReactAgent</Button>
+            </Form.Item>
+          </Form>
+
+          {reactAgentResult && (
+            <Card style={{ marginTop: 16 }} type="inner" title={`创建结果：${reactAgentResult.agentName}`}>
+              <p><b>状态：</b>{reactAgentResult.status}</p>
+              <p><b>TraceId：</b>{reactAgentResult.traceId}</p>
+              <p><b>已应用执行Hook：</b>{(reactAgentResult.appliedHooks || []).join(', ') || '无'}</p>
+              <p><b>最终提示词：</b></p>
+              <pre className="prompt-preview">{reactAgentResult.finalPrompt}</pre>
+              {reactAgentResult.answer && <p><b>试运行响应：</b>{reactAgentResult.answer}</p>}
+            </Card>
+          )}
         </Card>
 
         <Tabs

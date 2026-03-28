@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -24,6 +25,10 @@ public class ConfigPlatformService {
 
     public List<AgentConfig> listAgents() {
         return new ArrayList<>(agentStore.values());
+    }
+
+    public Optional<AgentConfig> getAgent(String id) {
+        return Optional.ofNullable(agentStore.get(id));
     }
 
     public AgentConfig createAgent(AgentConfigRequest request) {
@@ -46,6 +51,10 @@ public class ConfigPlatformService {
         return new ArrayList<>(toolStore.values());
     }
 
+    public Optional<McpToolConfig> getTool(String id) {
+        return Optional.ofNullable(toolStore.get(id));
+    }
+
     public McpToolConfig createTool(McpToolConfigRequest request) {
         McpToolConfig config = new McpToolConfig(
                 UUID.randomUUID().toString(),
@@ -62,6 +71,10 @@ public class ConfigPlatformService {
 
     public List<SkillConfig> listSkills() {
         return new ArrayList<>(skillStore.values());
+    }
+
+    public Optional<SkillConfig> getSkill(String id) {
+        return Optional.ofNullable(skillStore.get(id));
     }
 
     public SkillConfig createSkill(SkillConfigRequest request) {

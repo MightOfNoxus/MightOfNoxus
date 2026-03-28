@@ -24,3 +24,13 @@ body {
 .stat-row {
   margin-bottom: 16px;
 }
+
+.prompt-preview {
+  background: #0f172a;
+  color: #e2e8f0;
+  border-radius: 8px;
+  padding: 12px;
+  white-space: pre-wrap;
+  line-height: 1.6;
+  font-size: 13px;
+}

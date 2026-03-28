@@ -13,3 +13,5 @@ export const createTool = async (payload) => (await client.post('/mcp-tools', pa
 
 export const fetchSkills = async () => (await client.get('/skills')).data
 export const createSkill = async (payload) => (await client.post('/skills', payload)).data
+
+export const createReactAgent = async (payload) => (await client.post('/react-agents/create', payload)).data
